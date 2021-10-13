@@ -1,0 +1,204 @@
+---
+title: "3.6.image2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+h <- ggplot(huron, aes(year))
+h + geom_ribbon(aes(ymin=0, ymax=level))
+```
+
+Ribbon:
+
+  * ymin
+  * ymax
+  * fill
+  * colour
+
+## Initial prototype
+
+```{r}
+ggplot() +
+  geom_ribbon(
+    mapping=aes(
+      x=c(2005, 2010, 2015),
+      ymin=c(-40, -40, -42),
+      ymax=c(-20, -20, -18)
+    ),
+   fill="#e2e9ed"
+  )+
+  geom_line(
+    mapping=aes(
+      x=c(2005, 2010, 2015),
+      y=c(-20, -20, -18)
+    ),
+    color="#618394"
+  )+
+  geom_line(
+    mapping=aes(
+      x=c(2005, 2010, 2015),
+      y=c(-40, -40, -42)
+    ),
+    color="#618394",
+    linetype="dashed"
+  )
+```
+
+## Generalised to accommodate DF
+
+```{r}
+dataSet4 <- data.frame(
+  year=c(2005, 2010, 2015),
+  ymin=c(-40, -40, -42),
+  ymax=c(-30, -30, -28)
+)
+```
+
+```{r}
+ggplot(
+  data=dataSet4,
+  mapping=aes(
+    x=year
+  )
+) +
+  geom_ribbon(
+    mapping=aes(
+      ymin=ymin,
+      ymax=ymax
+    ),
+   fill="#e2e9ed"
+  )+
+  geom_line(
+    mapping=aes(
+      y=ymax
+    ),
+    color="#618394"
+  )+
+  geom_line(
+    mapping=aes(
+      y=ymin
+    ),
+    color="#618394",
+    linetype="dashed"
+  )
+```
+
+## In the process to create new geom
+
+```{r}
+ggplot(
+  mapping = aes(
+    x = year
+  )
+) +
+  geom_ribbon(
+    data = dataSet4,
+    mapping = aes(
+      ymin = ymin,
+      ymax = ymax
+    ),
+    fill = "#e2e9ed"
+  ) +
+  geom_line(
+    data = dataSet4,
+    mapping = aes(
+      y = ymax
+    ),
+    color = "#618394"
+  ) +
+  geom_line(
+    data = dataSet4,
+    mapping = aes(
+      y = ymin
+    ),
+    color = "#618394",
+    linetype = "dashed"
+  )
+```
+
+## new geom function
+
+```{r}
+geom_ribbonVaryingLineTypes <- function(
+  dataSet4, 
+  fill="#e2e9ed",
+  maxColor="#618394",
+  minColor="#618394", alpha=1
+) {
+  list(
+    geom_ribbon(
+      data = dataSet4,
+      mapping = aes(
+        ymin = ymin,
+        ymax = ymax
+      ),
+      fill = fill,
+      alpha = alpha
+    ),
+    geom_line(
+      data = dataSet4,
+      mapping = aes(
+        y = ymax
+      ),
+      color = maxColor
+    ),
+    geom_line(
+      data = dataSet4,
+      mapping = aes(
+        y = ymin
+      ),
+      color = minColor,
+      linetype = "dashed"
+    )
+  )
+}
+```
+
+## final test run
+
+```{r}
+dataSet5 <- data.frame(
+  year=dataSet4$year,
+  ymin=c(-35, -22, -20),
+  ymax=c(-20, -20, -15)
+)
+ggplot(
+  mapping = aes(
+    x = year
+  )
+) + 
+  geom_ribbonVaryingLineTypes(
+    dataSet5,
+    fill="#e7cccc", 
+    maxColor ="#96394a" ,
+    minColor = "#96394a"
+  )+
+  geom_ribbonVaryingLineTypes(
+    dataSet4,
+    alpha=0.5
+  )
+  
+```
+
+  x or y
+
+ymin or xmin
+
+ymax or xmax
+
+alpha
+
+colour
+
+fill
+
+group
+
+linetype
+
+size
