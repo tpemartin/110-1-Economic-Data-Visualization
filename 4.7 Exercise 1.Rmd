@@ -31,6 +31,23 @@ data_set4 <- data.frame(
 )
 ```
 
+```{r}
+ggplot(
+) +
+  geom_area(
+    data=data_set4,
+    mapping=aes(
+      x=year,
+      y=sales_amount,
+      fill=storage_type
+    ),
+    position="identity",
+    alpha=0.8,
+    color="white",
+    size=0.8
+    )
+```
+
 geom_area:
 
   * x, y, fill,
@@ -104,5 +121,21 @@ data_set4 %>%
     sales_amount=sales_amount/sum(sales_amount)
   ) -> 
   data_set5
+```
+
+```{r}
+ggplot() +
+  geom_area(
+    data = data_set5,
+    mapping = aes(
+      x = year,
+      y = sales_amount,
+      fill = storage_type
+    ),
+    position = "identity",
+    alpha = 0.8,
+    color = "white",
+    size = 0.8
+  ) 
 ```
 
