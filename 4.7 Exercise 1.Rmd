@@ -1,0 +1,108 @@
+
+```{r data_set}
+type1 <- function(){
+  dnorm(1990:2010, mean=1991, sd=3)*2500 -> x
+    round(x, digits = 0)
+}
+type2 <- function(){
+  dnorm(1994:2010, mean=1998, sd=2)*1000->x
+  round(x, digits=0)
+}
+type3 <- function(){
+  dnorm(2002:2010, mean=2005, sd=2.3)*800->x
+  round(x, digits=0)
+}
+
+data_set4 <- data.frame(
+  year=c(
+    1990:2010,
+    1994:2010,
+    2002:2010),
+  storage_type=
+    c(
+      rep("type1", 21),
+      rep("type2", 17),
+      rep("type3", 9)),
+  sales_amount=c(
+    type1(), 
+    type2(),
+    type3()
+  )
+)
+```
+
+geom_area:
+
+  * x, y, fill,
+  * color
+  
+```{r}
+y1=0 #input$y1
+y2=0 #input$y2
+y3=0 #input$y3
+ggplot(
+) +
+  geom_area(
+    data=data_set4,
+    mapping=aes(
+      x=year,
+      y=sales_amount,
+      fill=storage_type
+    ),
+    position="identity",
+    alpha=0.8,
+    color="white",
+    size=0.2 #input$size_area
+  )+
+  geom_text(
+    mapping=aes(
+      x=c(1992, 1998, 2005),
+      y=c(150+y1, 100+y2, 50+y3),
+      label=c("type1", "type2", "type3")
+    ),
+    color="white",
+    size=1 #input$size_text
+  )
+```
+
+```{r}
+y1 <- 25
+y2 <- 2
+y3 <- 11
+
+ggplot() +
+  geom_area(
+    data = data_set4,
+    mapping = aes(
+      x = year,
+      y = sales_amount,
+      fill = storage_type
+    ),
+    position = "identity",
+    alpha = 0.8,
+    color = "white",
+    size = 0.8
+  ) +
+  geom_text(
+    mapping = aes(
+      x = c(1992, 1998, 2005),
+      y = c(150 + y1, 100 + y2, 50 + y3),
+      label = c("type1", "type2", "type3")
+    ),
+    color = "white",
+    size = 8
+  )
+```
+
+##
+
+```{r}
+library(dplyr)
+data_set4 %>%
+  group_by(storage_type) %>%
+  mutate(
+    sales_amount=sales_amount/sum(sales_amount)
+  ) -> 
+  data_set5
+```
+

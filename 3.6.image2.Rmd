@@ -159,7 +159,18 @@ geom_ribbonVaryingLineTypes <- function(
 }
 ```
 
+
+
 ## final test run
+
+```{r}
+ggplot(
+  mapping = aes(
+    x = year
+  )
+) +
+ geom_ribbonVaryingLineTypes(dataSet4)
+```
 
 ```{r}
 dataSet5 <- data.frame(
