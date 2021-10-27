@@ -130,6 +130,7 @@ ggplot() +
     mapping = aes(
       x = year,
       y = sales_amount,
+      group = storage_type,
       fill = storage_type
     ),
     position = "identity",
@@ -137,5 +138,30 @@ ggplot() +
     color = "white",
     size = 0.8
   ) 
+```
+
+```{r}
+ggplot(
+)+
+  geom_area(
+    data=data_set4,
+    mapping = aes(
+      x = year,
+      y = sales_amount,
+      group = storage_type,
+      fill = storage_type
+    ),
+    position = "dodge",
+    alpha = 0.5
+  )+
+  geom_text(
+    mapping = aes(
+      x = c(1993 ,1997 ,2005 ),
+      y = c(150 ,100 ,100 ),
+      label = c("type1" ,"type2" ,"type3" )
+    ),
+    color = "white",
+    size = 1.5
+  )
 ```
 

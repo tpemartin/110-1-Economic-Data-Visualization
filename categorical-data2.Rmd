@@ -1,0 +1,712 @@
+# Categorical data
+
+## Aesthetics: group
+
+```{r}
+ggplot() +
+  geom_line(
+    mapping=aes(
+      x=c(1, 2, 3),
+      y=c(2, 3, 2),
+    )
+  ) +
+  geom_line(
+    mapping=aes(
+      x=c(1, 2, 3),
+      y=c(5, 2, 6)
+    )
+  )
+
+```
+
+Use `group` aesthetic to combine 
+  
+  * multiple same geom layers
+
+into one.
+
+```{r}
+ggplot() +
+  geom_line(
+    mapping=aes(
+      x=c(1, 2, 3, 1, 2, 3),
+      y=c(2, 3, 2, 5, 2, 6),
+      group=c("m", "m", "m", "f", "f", "f"), 
+    )
+  )
+
+```
+
+```{r}
+ggplot() +
+  geom_line(
+    mapping=aes(
+      x=c(1, 2, 3, 1, 2, 3),
+      y=c(2, 3, 2, 5, 2, 6),
+      group=c("m", "m", "m", "f", "f", "f"),
+      color=c("m", "m", "m", "f", "f", "f")
+    )
+  )
+
+```
+
+  * Any aesthetic differentiates group can replace group.
+  
+```{r}
+ggplot() +
+  geom_line(
+    mapping=aes(
+      x=c(1, 2, 3, 1, 2, 3),
+      y=c(2, 3, 2, 5, 2, 6),
+      # group=c("m", "m", "m", "f", "f", "f"),
+      color=c("m", "m", "m", "f", "f", "f")
+    )
+  )
+
+```
+
+<div class="alert alert-warning">
+
+  * When there is no aesthetic mapping to differentiate groups, use `group` aesthetic mapping.
+  
+</div>
+
+## Geom overlapping
+
+When geom layers overlap, we can use
+
+  * `alpha` aesthetic. 
+
+If multiple geometries are created within the one `geom_` call (using grouping aesthetics), we can also set
+
+  * position: "stack", "dodge" or "jitter" (some of them might not apply to certain `geom_`)
+
+```{r , eval=T, echo=F}
+teachDS::img_centering("https://clauswilke.com/dataviz/visualizing_proportions_files/figure-html/health-vs-age-1.png")
+```
+
+  * <https://clauswilke.com/dataviz/visualizing-proportions.html#fig:health-vs-age>
+  
+  * x is continuous, or discrete with many types
+  
+  * y the cumulative proportion
+
+***
+
+```{r}
+ggplot() +
+  geom_area(
+    mapping=aes(
+      x=c(1, 2, 3),
+      y=c(0.2, 0.3, 0.2),
+    )
+  ) +
+  geom_area(
+    mapping=aes(
+      x=c(1, 2, 3),
+      y=c(0.4, 0.3, 0.52) + c(0.2, 0.3, 0.2) # the additive is for accumulative purpose
+    ), 
+    alpha=0.5
+  )
+```
+
+## Position: stack
+
+  * put y on top of the overlapping geom's y
+  
+  * create accumulative result.
+
+```{r}
+ggplot() +
+  geom_area(
+    mapping=aes(
+      x=c(1, 2, 3, 
+        1, 2, 3),
+      y=c(0.2, 0.3, 0.2, 
+        0.4, 0.3, 0.52),
+      fill=c("m", "m", "m", 
+        "f", "f", "f")
+    ),
+    position="stack" #input$position
+  )
+```
+
+  * stack position is accumulative; no need to compute the accumulative value yourself.
+  
+  * the default position in `geom_area` is "stack". Therefore, you can omit position argument. 
+
+
+***
+
+```{r data_cat1}
+data_cat1 <- data.frame(
+      x=c(1, 2, 3, 1, 2, 3),
+      y=c(0.2, 0.3, 0.2, 0.4, 0.4, 0.52),
+      fill=c("m", "m", "m", "f", "f", "f")
+)
+```
+
+```{r}
+ggplot(
+  data=data_cat1
+) + 
+  geom_area(
+    mapping=aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  )
+```
+
+<div class="alert alert-warning">
+When aesthetic mapping involves with unordered data, it will  
+
+  * convert the data series into factor (unless the series is already a factor);
+  
+  * conduct the mapping according to the level sequence of the converted factor.
+
+</div>
+
+```{r}
+data_cat1$fill |>
+  factor() |>
+  levels()
+```
+
+
+## Factor
+
+When grouping aesthetics vary the look of geometries across different groups of data, it is crucial that users declare the mapped series with proper class.
+
+  * `factor(data_series, levels)` parses `data_series` into a categorical data with expressing sequence defined by `levels`.
+  
+  * If omit `levels` the level sequence will be determined by the collateral sequence defined by your operating system.
+
+```{r}
+ggplot(
+  data=data_cat1
+) + 
+  geom_area(
+    mapping=aes(
+      x=x,
+      y=y,
+      fill=factor(fill, levels=c("m", "f"))
+    )
+  )
+```
+
+  * Here we declare factor on-the-go.
+  
+We can also declare factor in the data frame first:
+```{r}
+data_cat1_copy <- data_cat1
+data_cat1_copy$fill |>
+  factor(levels=c("m", "f")) -> 
+  data_cat1_copy$fill
+```
+
+  * `|>` is a R 4.0+ equipped operator, which makes:
+```{r}
+f(x, ....) # equivalent to
+x |> f(...)
+```
+  
+
+```{r}
+ggplot(
+  data=data_cat1_copy
+) + 
+  geom_area(
+    mapping=aes(
+      x=x,
+      y=y,
+      group=fill)
+  )
+```
+
+***
+
+```{r}
+ggplot() + 
+  geom_area(
+    data=data_cat1_copy[4:6,],
+    mapping=aes(
+      x=x,
+      y=y
+    ),
+    fill="blue"
+  )+
+  geom_area(
+    data=data_cat1_copy[1:3,],
+    mapping=aes(
+      x=x,
+      y=y
+    ),
+    fill="pink"
+  )
+
+```
+
+```{r}
+ggplot()+
+  geom_area(
+    data=data_cat1_copy,
+    mapping=aes(
+      x=x,
+      y=y,
+     # group=fill,
+      fill=fill
+    )
+  )
+```
+
+
+```{r}
+fill=fill
+```
+
+
+```{r}
+)
+  )
+
+```
+
+## Proportional data
+
+```{r}
+data_cat2_wide <- data.frame(
+      x=c(1, 2, 3),
+      y_a=c(0.2, 0.3, 0.2),
+      y_b=c(0.4, 0.4, 0.52),
+      y_c=c(0.4, 0.3, 0.28)
+)
+
+data_cat2_wide |> 
+  tidyr::pivot_longer(
+    cols=y_a:y_c,
+    names_to = "fill",
+    values_to= "y"
+  ) ->
+  data_cat2
+
+View(data_cat2)
+```
+
+```{r}
+factor(data_cat2$fill) |>
+  levels()
+```
+
+
+```{r}
+ggplot(
+  data=data_cat2
+) + 
+  geom_area(
+    mapping=aes(
+      x=x,
+      y=y,
+      fill=factor(fill, levels=c("y_c", "y_b", "y_a"))
+    ),
+    color="white"
+  )
+```
+
+  * fill's aesthetic mapping is related to RHS fill's levels.
+  
+  * position stock sequence, however, is determined by group mapping variable levels. 
+
+```{r}
+ggplot(
+  data=data_cat2
+) + 
+  geom_area(
+    mapping=aes(
+      x=x,
+      y=y,
+      group=factor(fill, levels=c("y_a", "y_b", "y_c")),
+      fill=factor(fill, levels=c("y_c", "y_b", "y_a"))
+    ),
+    color="white"
+  )
+```
+
+***
+
+When x mapping series has limited cases and is discrete, a bar chart with position dodge is better.
+
+```{r}
+ggplot(
+  data=data_cat2
+) + 
+  geom_col(
+    mapping=aes(
+      x=x,
+      y=y,
+      fill=fill
+    ),
+    color="white",
+    width=0.8, #input$width
+    size=0, #input$size
+    position = "dodge" #input$position
+  )
+```
+
+  * `width`: the width of the bar
+  
+  * `size`: the size of the stroke
+  
+
+***
+Pie chart: 
+
+  * not good for comparing proportion across more than one dimension 
+
+```{r}
+library(dplyr)
+data_cat2 %>%
+  filter(
+    x==1
+  ) -> 
+  data_cat2_x1only
+```
+
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    ),
+    position="stack"
+  )
+```
+
+```{r piechart}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  coord_polar(
+    theta = "y"
+  )
+```
+
+## Adding text 
+
+adding text
+
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=fill
+    ),
+    position="stack"
+  )
+```
+
+  * `geom_col` stack sequence is based on `fill` level sequence.
+  
+  * `geom_text` stack sequence is based on observation sequence.  
+
+<div class="alert alert-info">
+
+Grouping aesthetics determine the sequence of stacking. In `geom_col`, `fill` is the grouping aesthetic. To make `geom_text` stack labels in sequence as `fill` in `geom_col`, we can put `group=fill` in `geom_text` to create such a sequence. 
+
+    
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=fill,
+      group=fill
+    ),
+    position = "stack"
+  )
+```
+
+</div>
+
+Change labels to represent the proportion values of `y`
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=y, # use y to label now
+      group=fill
+    ),
+    position = "stack"
+  )
+```
+
+  * `position` argument also takes position functions.
+  
+  * When you know what type of position you want, you can use corresponding position function to fine tune the position.
+
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=y,
+      group=fill
+    ),
+    size=8, #input$size
+    position = position_stack(
+      vjust=0.5 #input$vjust
+      )
+  )
+```
+
+```{r}
+data_cat2_x1only$label <- 
+  paste0(data_cat2_x1only$fill, " (",
+    data_cat2_x1only$y, ")")
+```
+
+
+```{r}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=label,
+      group=fill
+    ),
+    size=8, #input$size
+    position = position_stack(
+      vjust=0.5 #input$vjust
+      )
+  )
+```
+
+```{r piechart2}
+ggplot(
+  data=data_cat2_x1only
+) + 
+  geom_col(
+    aes(
+      x=x,
+      y=y,
+      fill=fill
+    )
+  ) +
+  geom_text(
+    aes(
+      x=x,
+      y=y,
+      label=y,
+      group=fill
+    ),
+    size=8,
+    position = position_stack(vjust=0.5)
+  ) +
+  coord_polar(
+    theta = "y"
+  ) +
+  theme_void()
+```
+
+***
+
+When x-axis is also representing a categorical data:
+
+```{r dd}
+ggplot(
+  data=data_cat2
+) + 
+  # geom_col(
+  #   mapping=aes(
+  #     x=x,
+  #     y=y,
+  #     fill=fill
+  #   ),
+  #   color="white",
+  #   width=0.8, #input$width
+  #   size=0, #input$size
+  #   position = "dodge" #input$position
+  # )+
+  geom_text(
+    mapping=aes(
+      x=x,
+      y=y,
+      group=fill,
+      label=y
+    ),
+    position=position_dodge(width=2)
+  )
+```
+
+
+## More on position
+
+<https://ggplot2.tidyverse.org/reference/index.html#section-position-adjustment>
+
+## Coordination flip
+
+```{r, eval=T, echo=F}
+teachDS::img_centering("https://www.economist.com/img/b/1280/759/90/sites/default/files/20191130_WOC194.png")
+```
+
+```{r}
+ggplot()+
+  geom_col(
+    mapping=
+      aes(
+        x=c("A", "B", "C"),
+        y=c(56, 77, 92)
+      )
+  )+
+  coord_flip()
+```
+
+***
+
+Another common application of `coord_flip` is:
+
+```{r , eval=T, echo=F}
+teachDS::img_centering("img/us-presidential-election.jpg", width="100%")
+```
+
+```{r}
+h=0.5 #input$h
+dt=0 #input$dt
+
+dx=4 #input$dx
+ggplot()+
+  geom_col(
+    mapping=aes(
+      x=c(1, 1),
+      y=c(306, 232),
+      fill=c("biden","trump")
+    ),
+    width=1
+  )+
+  geom_segment(
+    mapping=aes(
+      x=1-h,
+      y=270,
+      xend=1+h,
+      yend=270
+    )
+  )+
+  geom_text(
+    mapping=aes(
+      x=1+dt,
+      y=270,
+      label="270"
+    ),
+    size=8 #input$text
+  )+
+  xlim(1-dx, 1+dx)+ # make sure cover 0.5-1.5 so the bar width can be accomodate
+  coord_flip()+
+  theme_void()+
+  theme(legend.position = "none")
+  
+```
+
+
+## Summary
+
+  * Grouping aesthetic separate a data frame into various subsample data frame and apply the `geom_` function to each one of them in the sequence determined by the mapping factor's levels sequence.
+  
+  * When `group` aesthetic and other aesthetic share the same mapping variable, `group` aesthetic can be ignored.
+  
+  * When deal with grouping variable, values of y from different groups at the same x can have position choice:  
+    * "identity": respect ys as it is.  
+    * "stack": stack ys according to grouping level sequence.
+    * "dodge": respect ys as it is but move their x values left and right according to grouping level sequence. 
+
+## Exercise
+
+### 1{-}
+
+```{r, echo=F, eval=T}
+teachDS::img_centering("https://images.squarespace-cdn.com/content/v1/55b6a6dce4b089e11621d3ed/1586289284165-6Z2M2XKD645EJRCV3TPV/Area+chart+example.png?format=1500w")
+```
+
+### 2{-}
+
+```{r, echo=F, eval=T}
+teachDS::img_centering("https://www.economist.com/img/b/1000/1339/90/sites/default/files/images/print-edition/20211023_FBC728.png")
+```
+
+### 3{-}
+
+```{r, echo=F, eval=T}
+teachDS::img_centering("https://www.economist.com/img/b/1000/2753/90/sites/default/files/20211023_WWC082.png")
+```
+
+
+### 4{-}
+
+```{r, echo=F, eval=T}
+teachDS::img_centering("http://uc.udn.com.tw/photo/2020/01/12/1/7324036.png")
+```
+
+
