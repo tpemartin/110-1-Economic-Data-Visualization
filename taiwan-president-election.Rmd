@@ -32,3 +32,28 @@ ggplot()+
   )
 ```
 
+
+```{r}
+dx=3 #input$dx
+t= 1 #input$t
+
+ggplot()+
+geom_col(
+mapping = aes(
+x=c(1,1,1),
+y=c(38,5,57),
+group=c("c","b","a"),
+fill=c("a","b","c")
+)
+)+geom_text(
+mapping = aes(
+x=c(1+t,1+t),
+y=c(5,90),
+label=c("38%","57%")
+),
+position = "stack",
+size=14 #input$size
+)+xlim(1-dx, 1+dx)+coord_flip()+theme_void()+
+theme(legend.position = "none")
+```
+

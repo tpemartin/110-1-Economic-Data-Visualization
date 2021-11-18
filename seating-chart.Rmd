@@ -1,0 +1,63 @@
+# Seating chart 
+
+```{r}
+url <- "https://docs.google.com/spreadsheets/d/14jQT6tvbc7Xv_ID1eoOIqUA3q_4HujjMYthcelebdlw/edit#gid=0"
+sheet_chart <- googlesheets4::read_sheet(ss=url, sheet="Sheet1", col_names = F)
+sheet_chart_indices <- {
+  expand.grid(
+    1:nrow(sheet_chart), LETTERS[1:ncol(sheet_chart)]
+  ) -> sheet_chart_indices
+  whichIsNotX <- which(sheet_chart!="X")
+  sheet_chart_indices$isX <- TRUE
+  sheet_chart_indices$isX[whichIsNotX] <- FALSE
+  require(dplyr)
+  sheet_chart_indices %>%
+    mutate(
+      Var2=factor(Var2),
+      isAisle=Var2 %in% c("E","J","O"),
+      id=paste0(8-as.integer(Var1),"-",Var2)
+    ) 
+}
+chart <- {
+  require(ggplot2)
+  dy=0 #input$dy
+  ggplot() +
+    geom_col(
+      data=sheet_chart_indices %>%
+        filter(!isAisle),
+      mapping=aes(
+        x=Var2,
+        y=1,
+        group=Var1
+      ),
+      linetype="solid",
+      fill="white",
+      color="black"
+    )+
+    geom_text(
+      mapping = aes(
+        x=LETTERS[1:ncol(sheet_chart)],
+        y=nrow(sheet_chart)+1,
+        label=LETTERS[1:ncol(sheet_chart)]
+      )
+    )+
+    geom_text(
+      mapping = aes(
+        x=rep(c("E","J","O"),nrow(sheet_chart)),
+        y=1,
+        label=rep(1:nrow(sheet_chart), length(c("E","J","O"))),
+        group=rep(1:nrow(sheet_chart), length(c("E","J","O")))
+      ),
+      position=position_stack(vjust=0.5)
+    )+
+    scale_x_discrete(
+      limits=LETTERS[1:ncol(sheet_chart)]
+    )+
+    theme_void()
+  
+}
+plotly::ggplotly(chart)
+
+ggsave(filename="chart.svg", plot=chart)
+```
+

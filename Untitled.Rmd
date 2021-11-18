@@ -1,0 +1,9 @@
+## Recap
+
+ 1. Programming block {...}
+ 
+ 2. How to pack a chunk of codes? 
+ 
+ 3. How to formulate a chunk of codes as a function?
+ 
+ 4. How to write a function usage explanation (using Roxygen Skeletons).
