@@ -1,4 +1,5 @@
 jsonlite::fromJSON("https://raw.githubusercontent.com/tpemartin/110-1-Economic-Data-Visualization/main/data/salary.json") -> salary
+library(dplyr)
 salary$data$byIndustry %>% #View()
   filter(
     學歷別=="大學-薪資"
