@@ -1,4 +1,5 @@
 jsonlite::fromJSON("https://raw.githubusercontent.com/tpemartin/110-1-Economic-Data-Visualization/main/data/salary.json") -> salary
+library(dplyr)
 salary$data$byIndustry %>% #View()
   filter(
     學歷別=="大學-薪資"
@@ -16,6 +17,11 @@ salary$data$byIndustry %>%
     學歷別2=factor(學歷別, levels=rev(c("高中或高職-薪資", "大學-薪資")))
   ) -> 
   salary$data$byIndustry
+
+label_ntd <- scales::label_dollar(
+  prefix = "", suffix = "元"
+)
+
 dy <- 200 #input$dy
 ggplot() +
   geom_col(
@@ -34,10 +40,7 @@ ggplot() +
       x = 大職業別,
       y = 薪資 - dy,
       label = {
-        label_ntd <- scales::label_dollar(
-          prefix = "", suffix = "元"
-        )
-        label_ntd(薪資)
+       label_ntd(薪資)
       },
       group = 學歷別
     ),
