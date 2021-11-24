@@ -11,13 +11,20 @@ subset1 <- demo %>%
   filter(NIGHT_WORK >= NIGHT_WEEKEND) %>% #View()
   select(COUNTY, TOWN) %>%
   mutate(
-    COUNTRY= as.factor(COUNTY)
+    COUNTY= as.factor(COUNTY)
   ) 
+
+levels(subset1$COUNTY)
 subset2 <- subset1 %>%
   group_by(COUNTY) %>%
   summarise(
     count=n()
-  )
+  ) %>%
+  arrange(count) %>%
+  pull(COUNTY) -> newLevels
+
+subset1$COUNTY <- factor(subset1$COUNTY, levels=as.character(newLevels))
+subset1$COUNTY
 
 # subset1$COUNTY <- as.factor(subset1$COUNTY)
 # levels(subset1$COUNTY)
@@ -34,9 +41,7 @@ plot1 <- ggplot(
             size = 4 #input$size
     )+ 
   labs(title = "2020年11月各縣市平日夜間停留人數較多的區域數量",
-    subtitle="")+
-  scale_x_(
-    expand=
-  )
+    subtitle="")
+  # + scale_x
 
 plot1

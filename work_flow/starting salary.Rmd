@@ -1,0 +1,129 @@
+
+## initiate
+
+```{r makecondition}
+salary <- list()
+salary$save <- function(){
+  saveRDS(salary, "salary.Rds")
+  message("salary.Rds is saved.")
+}
+```
+
+## data source
+
+```{r}
+salary$data$source[[1]] <- "https://data.gov.tw/dataset/6647"
+salary$save()
+```
+
+## data import
+
+```{r data0}
+data0 <- readr::read_csv("A17000000J-020066-Qod/108年各教育程度別初任人員每人每月經常性薪資─按大職類分.csv")
+```
+
+```{r}
+salary$data$data0 <- data0
+salary$save()
+```
+
+
+## Naming and Programming Block
+
+  * Set up `.Rprofile` to load constantly used packages. 
+  
+  * Use hidden object naming to hide middle step byproducts.
+
+```{r}
+salary = readRDS("salary.Rds")
+salary$data$data1$dataframe <- 
+  {
+    .df <- salary$data$data0
+    
+    # check data frame problem:
+    ##  class, erroneous NAs
+    # check class
+    purrr::map(.df, class)
+
+    .df %>%
+      mutate(
+        across(
+          .cols = `經常性薪資-薪資`:`研究所-女/男`, 
+          .fns = as.numeric
+        )
+      ) -> .df
+    
+    .df
+  }
+salary$save()
+```
+
+```{r}
+salary$data$data1$summary <- 
+  {
+    # data summary:
+    #  how many NAs? percentage
+    .df <- salary$data$data1$dataframe
+    .df %>%
+      summarise(
+        across(
+          .cols=`經常性薪資-薪資`:`研究所-女/男`,
+          .fns = list(
+            na_count=function(x) sum(is.na(x)),
+            na_percentage=function(x) mean(is.na(x)),
+            mean=function(x) mean(x, na.rm=T),
+            median=function(x) median(x, na.rm=T),
+            range=function(x) list(range(x, na.rm=T)),
+            IQR=function(x) list(stats::IQR(x, na.rm=T)),
+            sd=function(x) stats::sd(x, na.rm=T)
+            )
+        )
+      ) #|> View()
+  }
+salary$save()
+```
+
+## plot
+
+  * frame your question: "各產業專業人員薪資狀況"
+
+```{r}
+{
+  question="各產業專業人員薪資狀況"
+  .df <- salary$data$data1$dataframe
+  View(.df)
+  .df %>%
+    select(
+      1:2,
+      matches("薪資"), -matches("女")
+    ) -> .df2
+  
+  salary$questions[[question]] <- 
+    {
+      ggplot()+
+        geom_col(
+          data=.df2 %>%
+            dplyr::filter(
+              stringr::str_detect(大職業別,"專業")
+            ),
+          mapping=aes(
+            x= 大職業別,
+            y= `經常性薪資-薪資`
+          )
+        )+coord_flip() -> gg
+      gg
+      list(
+        plot=gg
+      )
+    }
+}
+salary$save()
+```
+
+  * use `plotly::ggplotly()` to explore graphic data
+  
+```{r}
+salary$questions$各產業專業人員薪資狀況$plot |>
+  plotly::ggplotly()
+```
+
