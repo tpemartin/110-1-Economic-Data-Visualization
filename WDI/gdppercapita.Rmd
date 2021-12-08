@@ -1,0 +1,66 @@
+```{r}
+source("WDI/wdi.R")
+source("google-tools.R")
+econDV2::Object(gdppercapita)
+gt <- GoogleTools()
+gt$upload_excel_as_googlesheet(
+  "/Users/martinl/Downloads/Data_Extract_From_World_Development_Indicators (1).xlsx"
+)
+clipr::read_clip_tbl() -> .tbl
+View(.tbl)
+gdppercapita$data$source[[1]] <- 
+  "https://databank.worldbank.org/source/world-development-indicators#"
+gdppercapita$data$meta <- .tbl
+gdppercapita$data$dataframe <- 
+  {
+    library(WDI)
+    WDI(
+      indicator=gdppercapita$data$meta$Series.Code[[1]],
+      start=2019, end=2019
+    ) -> .gdp
+    WDI(
+      indicator=gdppercapita$data$meta$Series.Code[[2]],
+      start=2019, end=2019
+    ) -> .pop
+   wdi_merge(.gdp, .pop) -> df_merged 
+  }
+gdppercapita$save()
+
+```
+
+```{r}
+gt <- GoogleTools()
+gt$upload_excel_as_googlesheet("/Users/martinl/Downloads/NA8101A1A (1).xls")
+gt$readUpload("A3:C73") -> .gdpPP_tw
+names(.gdpPP_tw) <- c("year", "pop","gdp_usdMillion")
+gdppercapita$tw_data$source[[1]] <-"https://statdb.dgbas.gov.tw/pxweb/Dialog/varval.asp?ma=NA8101A1A&ti=%B0%EA%A5%C1%A9%D2%B1o%B2%CE%ADp%B1`%A5%CE%B8%EA%AE%C6-%A6~&path=../PXfile/NationalIncome/&lang=9&strList=L"
+gdppercapita$tw_data$source[[2]] <- "https://docs.google.com/spreadsheets/d/1pdsFobc1gMK76rjFpIlNkiMpnk3uun_84Bmxk38P1uE/edit#gid=1253149039"
+gdppercapita$save()
+gdppercapita$tw_data$dataframe <- .gdpPP_tw
+```
+
+```{r}
+gdppercapita = readRDS("data/gdppercapita.Rds")
+gdppercapita$data$dataframe |> View()
+gdppercapita$data$dataframe |> names()
+names(gdppercapita$data$dataframe)[4:5] <- c("gdp", "pop")
+gdppercapita$data$dataframe -> .dfwdi
+gdppercapita$tw_data$dataframe |>
+  mutate(
+    gdp=gdp_usdMillion *(10**6)
+  ) -> .dftw
+.dftw %>%
+  dplyr::filter(year==2019) %>%
+  mutate(
+    country="Taiwan"
+  ) %>%
+  select(year, country, pop, gdp) -> .dftw2
+.dfmerged <- 
+  bind_rows(
+    .dfwdi,
+    .dftw2
+  )
+gdppercapita$data_2019merged$dataframe <- .dfmerged
+gdppercapita$save()
+View(.dfmerged)
+```
