@@ -1,0 +1,78 @@
+
+## Traditional ONE series graph but two axises
+
+```{r}
+eu=readRDS("data/eu.Rds")
+
+ggplot4 <- econDV2::Object(ggplot4)
+ggplot4$data = eu$data2 |> dplyr::filter(
+      time >= "2011-01-01"
+    )
+
+transfer_leftBreaks = function(breaks){
+  scales::rescale(breaks, 
+    from=c(-10,10), to=c(4, 12))
+}
+transferInv_leftBreaks <- function(breaks){
+  scales::rescale(breaks, 
+    to=c(-10,10), from=c(4, 12))
+}
+ggplot(
+  data= ggplot4$data |>
+    subset(time <= "2014-06-01"),
+  mapping=aes(x=time)
+) +
+  geom_col(
+    mapping=aes(
+      y=ind_procution_change
+    ),
+    fill="#04a2d0"
+  )+
+  scale_y_continuous(
+    name="Industrial production",
+    limits = c(-10, 11),
+    breaks = seq(-10, 10, by=5),
+    labels = seq(-10, 10, by=5),
+    sec.axis = sec_axis(
+      name="Unemployment",
+      trans=transfer_leftBreaks,
+      breaks=seq(4, 12, by=2)
+    )
+  ) -> gg0
+
+gg0
+```
+
+## add second scaled series
+
+```{r}
+gg0+
+  geom_line(
+    aes(
+      y=transferInv_leftBreaks(unemploymentRate)
+    ),
+    color="#77230f"
+  ) -> gg1
+gg1
+```
+
+
+## Time series
+
+```{r}
+scale_x_special <- econDV2::axis_x_custom(scale_x_date)
+gg1 +  
+  scale_x_special(
+    breaks = lubridate::ymd(c(paste(2011:2013,"06","01"), "2014-03-01")),
+    labels = c("2011", "12", "13", "14"),
+    ticks_major = lubridate::ymd(
+      paste(2011:2014, "1", "1")
+    ),
+    ticks_minor = seq(
+      from=lubridate::ymd("2011-01-01"),
+      to=lubridate::ymd("2014-06-01"),
+      by="1 month"
+    )
+  )
+```
+
