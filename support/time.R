@@ -16,8 +16,6 @@ find_switchingPoint <- function(.df){
 }
 library(lubridate)
 intersect_datetimeX_numericY <- function(.df, x0) {
-  dx=dx
-  x1=x0+dx
   whichIsPreswitching <- (.df$x == x0) |> which()
   whichIsPreswitching
   .df[c(0,1)+whichIsPreswitching, ] -> .dfX

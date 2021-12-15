@@ -29,6 +29,10 @@ ggplot(
 ## find switching points
 source("support/time.R")
 .df |> find_switchingPoint() -> switchingPoint
+# OR
+# devtools::install_github("tpemartin/econDV2", force=T)
+#  then
+.df |> econDV2::find_switchingPoint() -> switchingPoint
 
 ggplot(
 )+geom_line(
