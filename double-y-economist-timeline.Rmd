@@ -33,11 +33,12 @@ ggplot(
     limits = c(-10, 11),
     breaks = seq(-10, 10, by=5),
     labels = seq(-10, 10, by=5),
-    sec.axis = sec_axis(
-      name="Unemployment",
-      trans=transfer_leftBreaks,
-      breaks=seq(4, 12, by=2)
-    )
+    sec.axis = dup_axis()
+    # sec.axis = sec_axis(
+    #   name="Unemployment",
+    #   trans=transfer_leftBreaks,
+    #   breaks=seq(4, 12, by=2)
+    # )
   ) -> gg0
 
 gg0

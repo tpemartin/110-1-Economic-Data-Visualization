@@ -27,7 +27,9 @@ ggplot(
       trans=transfer_leftBreaks,
       breaks=seq(4, 12, by=2)
     )
-  )+
+  )#+
+
+# add scaled unemployment
   geom_line(
     aes(
       y=transferInv_leftBreaks(unemploymentRate)
