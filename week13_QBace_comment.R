@@ -91,6 +91,10 @@ week13$save()
 
 plotnow+week13$geom_ribbon$geom
 
+
+# when restarting R session,  get plot back by running the followi --------
+
+week13=readRDS("data/week13.Rds")
 attach(week13)
 ggplot+geom_line+geom_event$geom +geom_ribbon$geom
 detach(week13)
