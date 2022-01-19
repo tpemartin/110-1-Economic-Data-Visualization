@@ -1,0 +1,26 @@
+---
+title: "期末專題"
+author: "林茂廷"
+date: "1/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = T, warning = F, message = F)
+```
+
+
+```{r backgroup, cache=T}
+mp <- econDV2::Map()
+sf_taiwan_simplified <- econDV2::sf_taiwan_simplified
+
+background <- function(){
+  sf_taiwan_simplified$台灣本島$縣市 |>
+  mp$sf$make_background_map(
+      color="white",
+      size=0.14
+  )
+}
+
+background()
+```
