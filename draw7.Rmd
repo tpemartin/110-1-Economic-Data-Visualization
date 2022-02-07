@@ -1,0 +1,36 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = T, warning = F, message = F, 
+  fig.showtext=T)
+library(ggplot2)
+library(showtext)
+library(colorspace)
+sysfonts::font_add_google('Noto Sans TC')
+showtext_auto()
+theme_set(
+  theme(
+    text=element_text(family = "Noto Sans TC")
+  )+
+    theme_classic()
+)
+colorspace::sequential_hcl(n = 12, h = c(300, 212), c = c(62, NA, 2), l = c(25, 95), power = c(1.2, 1.3), register = "crplace")
+```
+
+## graph1
+
+```{r}
+graph1=readRDS("graph1.Rds")
+graph1
+```
+
+## graph2
+
+```{r}
+graph2=readRDS("graph2.Rds")
+graph2
+```
+
